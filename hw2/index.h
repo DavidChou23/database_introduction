@@ -25,6 +25,7 @@ struct Node{
     bool is_leaf;
     Node* next;
     Node* prev;
+
 };
 
 class Index{
@@ -33,6 +34,7 @@ private:
     vector<int> value;
     int num_rows;
     Node* root;
+
     Node* find_leaf(int key);
     void insert_key(int key, int value);
     void inserttoleaf(Node* node, int key, int value);
@@ -41,7 +43,6 @@ private:
     void deletefromleaf(Node* node, int key);
     void merge(Node* node);
     void redistribute(Node* node);
-
 public:
     Index(int num_rows, vector<int> key, vector<int> value);
     void key_query(vector<int> query_kes);
