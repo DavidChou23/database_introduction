@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void read_input_file(int& num_rows, vector<int>& key, vector<int>& value)
+void read_input_file(int& num_rows, vector< int >& key, vector< int >& value)
 {
     //readfile
     fstream file;
@@ -29,7 +29,7 @@ void read_input_file(int& num_rows, vector<int>& key, vector<int>& value)
     return;
 }
 
-void read_key_query_file(int& num_key_query, vector<int>& query_keys)
+void read_key_query_file(int& num_key_query, vector< int >& query_keys)
 {
     //readfile
     fstream file;
@@ -49,7 +49,7 @@ void read_key_query_file(int& num_key_query, vector<int>& query_keys)
     return;
 }
 
-void read_range_query_file(int& num_range_query, vector<pair<int,int>>& query_pairs)
+void read_range_query_file(int& num_range_query, vector<pair< int , int >>& query_pairs)
 {
     //readfile
     fstream file;

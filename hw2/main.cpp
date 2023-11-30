@@ -13,10 +13,10 @@ using namespace std;
 
 int main()
 {
-    vector<int> key;
-    vector<int> value;
-    vector<int> query_keys;
-    vector<pair<int,int>> query_pairs;
+    vector< int > key;
+    vector< int > value;
+    vector< int > query_keys;
+    vector<pair< int , int >> query_pairs;
     int num_rows = 0;
     int num_key_query = 0;
     int num_range_query = 0;

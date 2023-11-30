@@ -9,11 +9,11 @@
 
 using namespace std;
 
-void writefile(string filename, vector<int> data){
+void writefile(string filename, vector< int > data){
     ofstream outfile;
     //overwrite the file
     outfile.open(filename+".txt", ios::out | ios::trunc);
-    for (long long i = 0; i < data.size(); i++){
+    for (int i = 0; i < data.size(); i++){
         outfile << data[i] << "\n";
     }
     outfile.close();
@@ -40,7 +40,7 @@ Node* Index::find_leaf(int key){
 }
 
 //return the index of the key in the leaf which is the smallest one that is larger than or equal to key
-int Index::search_keyidx(Node* leaf,int key){
+int Index::search_keyidx(Node* leaf, int key){
     int l=0;
     int r=leaf->keys.size()-1;
     int mid;
@@ -55,7 +55,7 @@ int Index::search_keyidx(Node* leaf,int key){
     return r;
 }
 
-int Index::search_key(int key){
+int Index::search_key( int key){
     Node* leaf = this->find_leaf(key);
     int idx = this->search_keyidx(leaf,key);
     if(leaf->keys[idx] != key){
@@ -65,10 +65,10 @@ int Index::search_key(int key){
     }
 }
 
-int Index::search_range(int key1, int key2){
+int Index::search_range( int key1, int key2){
     Node* leaf = this->find_leaf(key1);
     int idx = this->search_keyidx(leaf,key1);
-    int min=numeric_limits<int>::max();
+    int min=numeric_limits< int >::max();
     if(leaf->keys[idx]<key1){  //not in this leaf
         if(leaf->next == nullptr){
             return -1;
@@ -94,8 +94,8 @@ int Index::search_range(int key1, int key2){
     return min;
 }
 
-void Index::key_query(vector<int> query_keys){
-    vector<int> result;
+void Index::key_query(vector< int > query_keys){
+    vector< int > result;
     result.reserve(query_keys.size());
     for(int i=0;i<query_keys.size();i++){
         int value = this->search_key(query_keys[i]);
@@ -105,8 +105,8 @@ void Index::key_query(vector<int> query_keys){
     return;
 }
 
-void Index::range_query(vector<pair<int,int>> query_pairs){
-    vector<int> result;
+void Index::range_query(vector<pair< int , int >> query_pairs){
+    vector< int > result;
     result.reserve(query_pairs.size());
     for(int i=0;i<query_pairs.size();i++){
         int value = this->search_range(query_pairs[i].first,query_pairs[i].second);
@@ -124,21 +124,28 @@ void Index::clearAll(Node* node){
         node->next = nullptr;
         node->prev = nullptr;
         node->parent = nullptr;
-        delete node;
+        if (node){
+            delete node;
+        }
     }else{
-        for(int i=0;i<node->children.size();i++){
+        for(int i=node->children.size()-1;i>=0;i--){
             clearAll(node->children[i]);
         }
         node->next = nullptr;
         node->prev = nullptr;
         node->parent = nullptr;
-        delete node;
+        if (node){
+            delete node;
+        }
     }
     return;
 }
 
 void Index::clear_index(){
-    clearAll(this->root);
+    //clearAll(this->root);
+    for(int i=0;i<this->usednodes.size();i++){
+        delete this->usednodes[i];
+    }
     return;
 }
 
@@ -250,7 +257,7 @@ void Index::split(Node* node){
     }
 }
 
-Index::Index(int num_rows, vector<int> key, vector<int> value){
+Index::Index(int num_rows, vector< int > key, vector< int > value){
     this->root = new Node();
     this->usednodes.push_back(this->root);
     this->root->is_leaf = true;

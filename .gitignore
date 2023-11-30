@@ -1,3 +1,13 @@
-*/*.csv
-*/*.a
-*/*.o
+*
+
+!*/
+!*.*
+!../.gitignore
+*.exe
+*.a
+*.o
+*.csv
+*.zip
+*_111550046/
+*/output/
+*/build/

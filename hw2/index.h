@@ -10,13 +10,13 @@
 
 using namespace std;
 
-const int order = 2048;
-void writefile(string filename, vector<int> data);
+const int order = 1022;
+void writefile(string filename, vector< int > data);
 
 //order 1020 B+ tree
 struct Node{
-    vector<int> keys;
-    vector<int> values; //use only by leaf node
+    vector< int > keys;
+    vector< int > values; //use only by leaf node
     vector<Node*> children;
     Node* parent;
     bool is_leaf;
@@ -24,7 +24,9 @@ struct Node{
     Node* prev;
 
     Node(){
-        
+        parent = nullptr;
+        next = nullptr;
+        prev = nullptr;
         //+1 for split
         keys.reserve(order+1);
         values.reserve(order+1);
@@ -46,10 +48,10 @@ private:
     void insert_key(Node* internalnode,int key,Node *new_node);
     void split(Node* node);
 public:
-    void key_query(vector<int> query_kes);
-    void range_query(vector<pair<int,int>> query_pairs);
+    void key_query(vector< int > query_kes);
+    void range_query(vector<pair< int , int >> query_pairs);
     void clear_index();
-    Index(int num_rows, vector<int> key, vector<int> value);
+    Index(int num_rows, vector< int > key, vector< int > value);
 };
 
 #endif // INDEX_H_
