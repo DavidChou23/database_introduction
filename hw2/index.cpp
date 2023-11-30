@@ -44,7 +44,6 @@ private:
     void insert(int key, int value);
     void insert_key(Node* internalnode,int key,Node *new_node);
     void split(Node* node);
-    void build_b_plus_tree();
 public:
     void key_query(vector<int> query_kes);
     void range_query(vector<pair<int,int>> query_pairs);
@@ -135,8 +134,8 @@ int Index::search_range(int key1, int key2){
                 break;
             }else{
                 leaf = leaf->next;
-                idx = 0;
             }
+                idx = 0;
         }
     }
     return min;
@@ -201,13 +200,14 @@ void Index::insert(int key, int value){
 
 void Index::insert_key(Node* internalnode,int key,Node *new_node){
     int idx=this->search_keyidx(internalnode,key);  //the index of the key in the leaf >= key
-    if(internalnode->keys[idx] == key){ 
+    if(internalnode->keys[idx] == key){ //won't happen
         return;
     }else{
         if(internalnode->keys[idx]<key){
             idx++;
         }
         internalnode->keys.insert(internalnode->keys.begin()+idx, key);
+        internalnode->children.insert(internalnode->children.begin()+idx+1, new_node);
         if(internalnode->keys.size() == order){
             split(internalnode);
         }
@@ -253,15 +253,45 @@ void Index::split(Node* node){
             new_node->values.assign(node->values.begin()+mid,node->values.end());
             node->values.erase(node->values.begin()+mid,node->values.end());
             new_node->parent = node->parent;
-            node->parent->children.push_back(new_node);
             insert_key(node->parent,mid_key,new_node);
             return;
         }
     }else{ //not leaf, have to handle self,parent,children
-        if(node->is_leaf==false){
-             //keep doing from here   
+        if(node==this->root){ //also handle new root
+            Node *new_root = new Node();
+            new_root->is_leaf = false;
+            node->parent = new_root;
+            new_node->parent = new_root;
+            //key,values
+            new_node->keys.assign(node->keys.begin()+mid+1,node->keys.end());
+            node->keys.erase(node->keys.begin()+mid,node->keys.end());
+            new_node->children.assign(node->children.begin()+mid+1,node->children.end());
+            node->children.erase(node->children.begin()+mid+1,node->children.end());            
+            new_root->keys.push_back(mid_key);
+            new_root->children.push_back(node);
+            new_root->children.push_back(new_node);
+            this->root = new_root;
+            return;
         }else{
+            new_node->keys.assign(node->keys.begin()+mid+1,node->keys.end());
+            node->keys.erase(node->keys.begin()+mid,node->keys.end());
+            new_node->children.assign(node->children.begin()+mid+1,node->children.end());
+            node->children.erase(node->children.begin()+mid+1,node->children.end());            
             
+            new_node->parent = node->parent;
+            insert_key(node->parent,mid_key,new_node);
+            return;
         }
+    }
+}
+
+Index::Index(int num_rows, vector<int> key, vector<int> value){
+    this->root = new Node();
+    this->root->is_leaf = true;
+    this->root->parent = NULL;
+    this->root->next = NULL;
+    this->root->prev = NULL;
+    for(int i=0;i<num_rows;i++){
+        this->insert(key[i],value[i]);
     }
 }
