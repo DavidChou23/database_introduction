@@ -12,35 +12,35 @@
 
 using namespace std;
 
+const int order = 1020;
 void writefile(string filename, vector<int> data);
 
 //order 20 B+ tree
-const int order = 20;
 struct Node{
-    int num_keys;
-    int keys[order-1];
-    int values[order-1];
-    Node* children[order];
+    vector<int> keys;
+    vector<int> values; //use only by leaf node
+    vector<Node*> children;
     Node* parent;
     bool is_leaf;
     Node* next;
     Node* prev;
 
+    Node(){
+        keys.reserve(order);
+        values.reserve(order);
+        children.reserve(order+1);
+    }
+
 };
 
 class Index{
 private:
-    vector<int> key;
-    vector<int> value;
-    int num_rows;
     Node* root;
 
     Node* find_leaf(int key);
     void insert_key(int key, int value);
-    void inserttoleaf(Node* node, int key, int value);
     void split(Node* node);
     void delete_key(int key);
-    void deletefromleaf(Node* node, int key);
     void merge(Node* node);
     void redistribute(Node* node);
 public:
@@ -49,7 +49,6 @@ public:
     void range_query(vector<pair<int,int>> query_pairs);
     void clear_index();
     void build_b_plus_tree();
-    ~Index();
 };
 
 #endif // INDEX_H_
