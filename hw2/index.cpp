@@ -4,57 +4,10 @@
 #include <vector>
 #include <utility>
 #include <limits>
-#include <algorithm>
 
 #include "index.h"
 
 using namespace std;
-
-const int order = 1020;
-void writefile(string filename, vector<int> data);
-
-//order 20 B+ tree
-struct Node{
-    vector<int> keys;
-    vector<int> values; //use only by leaf node
-    vector<Node*> children;
-    Node* parent;
-    bool is_leaf;
-    Node* next;
-    Node* prev;
-
-    Node(){
-        //+1 for split
-        keys.reserve(order+1);
-        values.reserve(order+1);
-        children.reserve(order+1+1);
-    }
-};
-
-class Index{
-private:
-    Node* root;
-
-    Node* find_leaf(int key);
-    int search_keyidx(Node* leaf,int key);
-    int search_key(int key);
-    int search_range(int key1, int key2);
-    void clearAll(Node* node);
-    
-    void insert(int key, int value);
-    void insert_key(Node* internalnode,int key,Node *new_node);
-    void split(Node* node);
-public:
-    void key_query(vector<int> query_kes);
-    void range_query(vector<pair<int,int>> query_pairs);
-    void clear_index();
-    Index(int num_rows, vector<int> key, vector<int> value);
-};
-
-
-/*********************************************************************** *
- * ********************************************************************* *
- * ********************************************************************* */
 
 void writefile(string filename, vector<int> data){
     ofstream outfile;
@@ -117,7 +70,7 @@ int Index::search_range(int key1, int key2){
     int idx = this->search_keyidx(leaf,key1);
     int min=numeric_limits<int>::max();
     if(leaf->keys[idx]<key1){  //not in this leaf
-        if(leaf->next == NULL){
+        if(leaf->next == nullptr){
             return -1;
         }else{
             leaf = leaf->next;
@@ -130,7 +83,7 @@ int Index::search_range(int key1, int key2){
         }
         idx++;
         if(idx>=leaf->keys.size()){
-            if(leaf->next == NULL){
+            if(leaf->next == nullptr){
                 break;
             }else{
                 leaf = leaf->next;
@@ -164,12 +117,21 @@ void Index::range_query(vector<pair<int,int>> query_pairs){
 }
 
 void Index::clearAll(Node* node){
+    if (!node){
+        return;
+    }
     if(node->is_leaf){
+        node->next = nullptr;
+        node->prev = nullptr;
+        node->parent = nullptr;
         delete node;
     }else{
         for(int i=0;i<node->children.size();i++){
             clearAll(node->children[i]);
         }
+        node->next = nullptr;
+        node->prev = nullptr;
+        node->parent = nullptr;
         delete node;
     }
     return;
@@ -217,13 +179,14 @@ void Index::insert_key(Node* internalnode,int key,Node *new_node){
 
 void Index::split(Node* node){
     Node* new_node = new Node();
+    this->usednodes.push_back(new_node);
     int mid = node->keys.size()/2;
     int mid_key = node->keys[mid];
     new_node->is_leaf = node->is_leaf;
     new_node->next = node->next;
     new_node->prev = node;
     node->next = new_node;
-    if(new_node->next != NULL){
+    if(new_node->next != nullptr){
         new_node->next->prev = new_node;
     }
     /*********************** *
@@ -233,6 +196,7 @@ void Index::split(Node* node){
     if(node->is_leaf){ //only have to handle self and parent
         if(node==this->root){ //also handle new root
             Node *new_root = new Node();
+            this->usednodes.push_back(new_root);
             new_root->is_leaf = false;
             node->parent = new_root;
             new_node->parent = new_root;
@@ -259,6 +223,7 @@ void Index::split(Node* node){
     }else{ //not leaf, have to handle self,parent,children
         if(node==this->root){ //also handle new root
             Node *new_root = new Node();
+            this->usednodes.push_back(new_root);
             new_root->is_leaf = false;
             node->parent = new_root;
             new_node->parent = new_root;
@@ -287,10 +252,11 @@ void Index::split(Node* node){
 
 Index::Index(int num_rows, vector<int> key, vector<int> value){
     this->root = new Node();
+    this->usednodes.push_back(this->root);
     this->root->is_leaf = true;
-    this->root->parent = NULL;
-    this->root->next = NULL;
-    this->root->prev = NULL;
+    this->root->parent = nullptr;
+    this->root->next = nullptr;
+    this->root->prev = nullptr;
     for(int i=0;i<num_rows;i++){
         this->insert(key[i],value[i]);
     }
